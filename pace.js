@@ -29,7 +29,8 @@
       trackMethods: ['GET'],
       trackWebSockets: true,
       ignoreURLs: []
-    }
+    },
+    progressEffect: 'translate3d'
   };
 
   now = function() {
@@ -259,10 +260,12 @@
     Bar.prototype.finish = function() {
       var el;
       el = this.getElement();
-      el.className = el.className.replace('pace-active', '');
-      el.className += ' pace-inactive';
-      document.body.className = document.body.className.replace('pace-running', '');
-      return document.body.className += ' pace-done';
+      return setTimeout(function() {
+        el.className = el.className.replace('pace-active', '');
+        el.className += ' pace-inactive';
+        document.body.className = document.body.className.replace('pace-running', '');
+        return document.body.className += ' pace-done';
+      }, 1000);
     };
 
     Bar.prototype.update = function(prog) {
@@ -285,11 +288,15 @@
         return false;
       }
       el = this.getElement();
-      transform = "translate3d(" + this.progress + "%, 0, 0)";
-      _ref2 = ['webkitTransform', 'msTransform', 'transform'];
-      for (_j = 0, _len1 = _ref2.length; _j < _len1; _j++) {
-        key = _ref2[_j];
-        el.children[0].style[key] = transform;
+      if (options.progressEffect === 'translate3d') {
+        transform = "translate3d(" + this.progress + "%, 0, 0)";
+        _ref2 = ['webkitTransform', 'msTransform', 'transform'];
+        for (_j = 0, _len1 = _ref2.length; _j < _len1; _j++) {
+          key = _ref2[_j];
+          el.children[0].style[key] = transform;
+        }
+      } else {
+        el.children[0].style[options.progressEffect] = "" + (this.progress | 0) + "%";
       }
       if (!this.lastRenderedProgress || this.lastRenderedProgress | 0 !== this.progress | 0) {
         el.children[0].setAttribute('data-progress-text', "" + (this.progress | 0) + "%");

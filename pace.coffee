@@ -71,6 +71,10 @@ defaultOptions =
     # A list of regular expressions or substrings of URLS we should ignore (for both tracking and restarting)
     ignoreURLs: []
 
+  # What property should we manipulate to grow the progress bar?
+  # Options: translate3d (default), height, width
+  progressEffect : 'translate3d'
+
 now = ->
   performance?.now?() ? +new Date
 
@@ -221,11 +225,13 @@ class Bar
   finish: ->
     el = @getElement()
 
-    el.className = el.className.replace 'pace-active', ''
-    el.className += ' pace-inactive'
+    setTimeout ->
+      el.className = el.className.replace 'pace-active', ''
+      el.className += ' pace-inactive'
 
-    document.body.className = document.body.className.replace 'pace-running', ''
-    document.body.className += ' pace-done'
+      document.body.className = document.body.className.replace 'pace-running', ''
+      document.body.className += ' pace-done'
+    , 1000
 
   update: (prog) ->
     @progress = prog
@@ -245,9 +251,12 @@ class Bar
 
     el = @getElement()
 
-    transform = "translate3d(#{ @progress }%, 0, 0)"
-    for key in ['webkitTransform', 'msTransform', 'transform']
-      el.children[0].style[key] = transform
+    if options.progressEffect is 'translate3d'
+      transform = "translate3d(#{ @progress }%, 0, 0)"
+      for key in ['webkitTransform', 'msTransform', 'transform']
+        el.children[0].style[key] = transform
+    else 
+      el.children[0].style[options.progressEffect] = "#{ @progress|0 }%"
 
     if not @lastRenderedProgress or @lastRenderedProgress|0 != @progress|0
       # The whole-part of the number has changed
